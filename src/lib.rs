@@ -1,139 +1,3 @@
-#[macro_export]
-macro_rules! write_styled {
-    ($dst:expr, $fg:ident, $bg:ident, $msg:literal) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                $crate::Color::get_fg_code($crate::Color::$fg),
-                if $crate::Color::$fg != $crate::Color::Current &&
-                   $crate::Color::$bg != $crate::Color::Current {
-                    ";"
-                } else { 
-                    ""
-                },
-                $crate::Color::get_bg_code($crate::Color::$bg),
-                $msg
-            )
-            .as_bytes()
-        ).unwrap();
-        $dst.flush().unwrap();
-    };
-}
-
-#[macro_export]
-macro_rules! writeln_styled {
-    ($dst:expr, $fg:ident, $bg:ident, $msg:literal) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                $crate::Color::get_fg_code($crate::Color::$fg),
-                if $crate::Color::$fg != $crate::Color::Current &&
-                   $crate::Color::$bg != $crate::Color::Current {
-                    ";"
-                } else { 
-                    ""
-                },
-                $crate::Color::get_bg_code($crate::Color::$bg),
-                $msg
-            )
-            .as_bytes()
-        ).unwrap();
-        $dst.flush().unwrap();
-    };
-}
-
-#[macro_export]
-macro_rules! print_styled {
-    ($fg:ident, $bg:ident, $msg:literal) => {
-        let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                $crate::Color::get_fg_code($crate::Color::$fg),
-                if $crate::Color::$fg != $crate::Color::Current &&
-                   $crate::Color::$bg != $crate::Color::Current {
-                    ";"
-                } else { 
-                    ""
-                },
-                $crate::Color::get_bg_code($crate::Color::$bg),
-                $msg
-            )
-            .as_bytes()
-        ).unwrap();
-        stdout.flush().unwrap();
-    };
-}
-
-#[macro_export]
-macro_rules! println_styled {
-    ($fg:ident, $bg:ident, $msg:literal) => {
-        let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                $crate::Color::get_fg_code($crate::Color::$fg),
-                if $crate::Color::$fg != $crate::Color::Current &&
-                   $crate::Color::$bg != $crate::Color::Current {
-                    ";"
-                } else { 
-                    ""
-                },
-                $crate::Color::get_bg_code($crate::Color::$bg),
-                $msg
-            )
-            .as_bytes()
-        ).unwrap();
-        stdout.flush().unwrap();
-    };
-}
-
-#[macro_export]
-macro_rules! eprint_styled {
-    ($fg:ident, $bg:ident, $msg:literal) => {
-        let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                $crate::Color::get_fg_code($crate::Color::$fg),
-                if $crate::Color::$fg != $crate::Color::Current &&
-                   $crate::Color::$bg != $crate::Color::Current {
-                    ";"
-                } else { 
-                    ""
-                },
-                $crate::Color::get_bg_code($crate::Color::$bg),
-                $msg
-            )
-            .as_bytes()
-        ).unwrap();
-        stderr.flush().unwrap();
-    };
-}
-
-#[macro_export]
-macro_rules! eprintln_styled {
-    ($fg:ident, $bg:ident, $msg:literal) => {
-        let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                $crate::Color::get_fg_code($crate::Color::$fg),
-                if $crate::Color::$fg != $crate::Color::Current &&
-                   $crate::Color::$bg != $crate::Color::Current {
-                    ";"
-                } else { 
-                    ""
-                },
-                $crate::Color::get_bg_code($crate::Color::$bg),
-                $msg
-            )
-            .as_bytes()
-        ).unwrap();
-        stderr.flush().unwrap();
-    };
-}
-
 #[derive(PartialEq, Eq)]
 pub enum Color {
     Black,
@@ -155,11 +19,280 @@ pub enum Color {
     Color256(u8),
     Rgb(u8, u8, u8),
     Current,
+    Reset,
+}
+
+#[macro_export]
+macro_rules! write_styled {
+    ($dst:expr, Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
+        $dst.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        $dst.flush().unwrap();
+    };
+    ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
+        $dst.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        $dst.flush().unwrap();
+    };
+    ($dst:expr, $fg:ident, $bg:ident, $msg:expr) => {
+        $dst.write_all(
+            format!(
+                "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                $fg.to_fg_code(),
+                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                $bg.to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        $dst.flush().unwrap();
+    };
+}
+
+#[macro_export]
+macro_rules! writeln_styled {
+    ($dst:expr, Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
+        $dst.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        $dst.flush().unwrap();
+    };
+    ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
+        $dst.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        $dst.flush().unwrap();
+    };
+    ($dst:expr, $fg:ident, $bg:ident, $msg:expr) => {
+        $dst.write_all(
+            format!(
+                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                $fg.to_fg_code(),
+                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                $bg.to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        $dst.flush().unwrap();
+    };
+}
+
+#[macro_export]
+macro_rules! print_styled {
+    (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
+        let mut stdout = std::io::stdout().lock();
+        stdout.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stdout.flush().unwrap();
+    };
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
+        let mut stdout = std::io::stdout().lock();
+        stdout.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stdout.flush().unwrap();
+    };
+    ($fg:ident, $bg:ident, $msg:expr) => {
+        let mut stdout = std::io::stdout().lock();
+        stdout.write_all(
+            format!(
+                "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                $fg.to_fg_code(),
+                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                $bg.to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stdout.flush().unwrap();
+    };
+}
+
+#[macro_export]
+macro_rules! println_styled {
+    (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
+        let mut stdout = std::io::stdout().lock();
+        stdout.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stdout.flush().unwrap();
+    };
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
+        let mut stdout = std::io::stdout().lock();
+        stdout.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stdout.flush().unwrap();
+    };
+    ($fg:ident, $bg:ident, $msg:expr) => {
+        let mut stdout = std::io::stdout().lock();
+        stdout.write_all(
+            format!(
+                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                $crate::Color::$fg.to_fg_code(),
+                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                $crate::Color::$bg.to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stdout.flush().unwrap();
+    };
+}
+
+#[macro_export]
+macro_rules! eprint_styled {
+    (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
+        let mut stderr = std::io::stderr().lock();
+        stderr.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stderr.flush().unwrap();
+    };
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
+        let mut stderr = std::io::stderr().lock();
+        stderr.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stderr.flush().unwrap();
+    };
+    ($fg:ident, $bg:ident, $msg:expr) => {
+        let mut stderr = std::io::stderr().lock();
+        stderr.write_all(
+            format!(
+                "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                $fg.to_fg_code(),
+                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                $bg.to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stderr.flush().unwrap();
+    };
+}
+
+#[macro_export]
+macro_rules! eprintln_styled {
+    (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
+        let mut stderr = std::io::stderr().lock();
+        stderr.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stderr.flush().unwrap();
+    };
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
+        let mut stderr = std::io::stderr().lock();
+        stderr.write_all(
+            format!(
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stderr.flush().unwrap();
+    };
+    ($fg:ident, $bg:ident, $msg:expr) => {
+        let mut stderr = std::io::stderr().lock();
+        stderr.write_all(
+            format!(
+                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                $fg.to_fg_code(),
+                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                $bg.to_bg_code(),
+                $msg
+            )
+            .as_bytes()
+        ).unwrap();
+        stderr.flush().unwrap();
+    };
 }
 
 impl Color {
-    pub fn get_fg_code(color: Color) -> String {
-        match color {
+    pub fn is_current(&self) -> bool {
+        *self == Self::Current
+    }
+
+    pub fn to_fg_code(&self) -> String {
+        match *self {
             Self::Black => "30".to_string(),
             Self::Red => "31".to_string(),
             Self::Green => "32".to_string(),
@@ -176,28 +309,15 @@ impl Color {
             Self::BrightMagenta => "95".to_string(),
             Self::BrightCyan => "96".to_string(),
             Self::BrightWhite => "97".to_string(),
-            Self::Color256(num) => {
-                format!("38;5;{}",
-                    if num < 10 {
-                        (num + b'0') as char
-                    } else {
-                        char::from_digit(num.into(), 10).unwrap()
-                    }
-                )
-            },
-            Self::Rgb(r, g, b) => {
-                format!("38;2;{};{};{}",
-                    if r < 10 { (r + b'0') as char } else { char::from_digit(r.into(), 10).unwrap() },
-                    if g < 10 { (g + b'0') as char } else { char::from_digit(g.into(), 10).unwrap() },
-                    if b < 10 { (b + b'0') as char } else { char::from_digit(b.into(), 10).unwrap() }
-                )
-            },
-            Self::Current => "".to_string()
+            Self::Color256(num) => format!("38;5;{}", num),
+            Self::Rgb(r, g, b) => format!("38;2;{};{};{}", r, g, b),
+            Self::Current => "".to_string(),
+            Self::Reset => "0".to_string()
         }
     }
 
-    pub fn get_bg_code(color: Color) -> String {
-        match color {
+    pub fn to_bg_code(&self) -> String {
+        match *self {
             Self::Black => "40".to_string(),
             Self::Red => "41".to_string(),
             Self::Green => "42".to_string(),
@@ -214,23 +334,10 @@ impl Color {
             Self::BrightMagenta => "105".to_string(),
             Self::BrightCyan => "106".to_string(),
             Self::BrightWhite => "107".to_string(),
-            Self::Color256(num) => {
-                format!("48;5;{}",
-                    if num < 10 {
-                        (num + b'0') as char
-                    } else {
-                        char::from_digit(num.into(), 10).unwrap()
-                    }
-                )
-            },
-            Self::Rgb(r, g, b) => {
-                format!("48;2;{};{};{}",
-                    if r < 10 { (r + b'0') as char } else { char::from_digit(r.into(), 10).unwrap() },
-                    if g < 10 { (g + b'0') as char } else { char::from_digit(g.into(), 10).unwrap() },
-                    if b < 10 { (b + b'0') as char } else { char::from_digit(b.into(), 10).unwrap() }
-                )
-            },
-            Self::Current => "".to_string()
+            Self::Color256(num) => format!("48;5;{}", num),
+            Self::Rgb(r, g, b) => format!("48;2;{};{};{}", r, g, b),
+            Self::Current => "".to_string(),
+            Self::Reset => "0".to_string()
         }
     }
 }
@@ -240,8 +347,29 @@ mod tests {
     use std::io::Write;
 
     use super::write_styled;
+    use super::Color::*;
 
     macro_rules! test_color {
+        ($name:ident: Color256($fg:literal), Color256($bg:literal),
+         $msg:literal => $expected:literal) => {
+            #[test]
+            fn $name() {
+                let mut output: Vec<u8> = vec![];
+                write_styled!(&mut output, Color256($fg), Color256($bg), $msg);
+                assert_eq!(output.as_slice(), $expected);
+            }
+        };
+        ($name:ident: 
+         Rgb($fg_r:literal, $fg_g:literal, $fg_b:literal), 
+         Rgb($bg_r:literal, $bg_g:literal, $bg_b:literal), 
+         $msg:literal => $expected:literal) => {
+            #[test]
+            fn $name() {
+                let mut output: Vec<u8> = vec![];
+                write_styled!(&mut output, Rgb($fg_r, $fg_g, $fg_b), Rgb($bg_r, $bg_g, $bg_b), $msg);
+                assert_eq!(output.as_slice(), $expected);
+            }
+        };
         ($name:ident: $fg:ident, $bg:ident, $msg:literal => $expected:literal) => {
             #[test]
             fn $name() {
@@ -289,14 +417,22 @@ mod tests {
     test_color!(bg_bright_white: Current, BrightWhite, "hi" => b"\x1b[107mhi\x1b[0m");
 
     // Color256 tests
-//    test_color!(color256: Color256(123), Current, "hi" => b"\x1b[38;5;123mhi\x1b[0m");
-//    test_color!(bg_color256: Current, Color256(52), "hi" => b"\x1b[48;5;52mhi\x1b[0m");
+    test_color!(color256_1: Color256(123), Color256(52), "hi" => b"\x1b[38;5;123;48;5;52mhi\x1b[0m");
+    test_color!(color256_2: Color256(12), Color256(255), "hi" => b"\x1b[38;5;12;48;5;255mhi\x1b[0m");
 
     // RGB tests
-//    test_color!(rgb: Rgb(192, 123, 23), Current, "hi" => b"\x1b[38;2;192;123;23mhi\x1b[0m");
-//    test_color!(bg_rgb: Current, Rgb(192, 123, 23), "hi" => b"\x1b[48;2;192;123;23mhi\x1b[0m");
+    test_color!(rgb_1: 
+        Rgb(192, 123, 23), 
+        Rgb(231, 12, 73),
+        "hi" => b"\x1b[38;2;192;123;23;48;2;231;12;73mhi\x1b[0m"
+    );
+    test_color!(rgb_2: 
+        Rgb(92, 13, 239), 
+        Rgb(132, 1, 177), 
+        "hi" => b"\x1b[38;2;92;13;239;48;2;132;1;177mhi\x1b[0m"
+    );
 
-    // Mixed tests
+    // Mixed named color tests
     test_color!(blk_on_cyan: Black, Cyan, "hi" => b"\x1b[30;46mhi\x1b[0m");
     test_color!(grn_on_purp: Green, Magenta, "hi" => b"\x1b[32;45mhi\x1b[0m");
     test_color!(red_on_wht: Red, White, "hi" => b"\x1b[31;47mhi\x1b[0m");

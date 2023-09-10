@@ -46,42 +46,36 @@ pub enum Color {
 #[macro_export]
 macro_rules! write_styled {
     ($dst:expr, Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m",
-                $crate::Color::Color256($fg).to_fg_code(),
-                $crate::Color::Color256($bg).to_bg_code(),
-                $msg
-            )
-            .as_bytes(),
+        write!(
+            $dst,
+            "\u{001b}[{};{}m{}\u{001b}[0m",
+            $crate::Color::Color256($fg).to_fg_code(),
+            $crate::Color::Color256($bg).to_bg_code(),
+            $msg
         )
         .unwrap();
         $dst.flush().unwrap();
     };
     ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m",
-                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                $msg
-            )
-            .as_bytes(),
+        write!(
+            $dst,
+            "\u{001b}[{};{}m{}\u{001b}[0m",
+            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+            $msg
         )
         .unwrap();
         $dst.flush().unwrap();
     };
     ($dst:expr, $fg:expr, $bg:expr, $msg:expr) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                $fg.to_fg_code(),
-                $fg.get_separator(&$bg),
-                $bg.to_bg_code(),
-                $msg
-            )
-            .as_bytes(),
+        write!(
+            $dst,
+            "\u{001b}[{}{}{}m{}\u{001b}[0m",
+            $fg.to_fg_code(),
+            $fg.get_separator(&$bg),
+            $bg.to_bg_code(),
+            $msg
         )
         .unwrap();
         $dst.flush().unwrap();
@@ -92,42 +86,36 @@ macro_rules! write_styled {
 #[macro_export]
 macro_rules! writeln_styled {
     ($dst:expr, Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                $crate::Color::Color256($fg).to_fg_code(),
-                $crate::Color::Color256($bg).to_bg_code(),
-                $msg
-            )
-            .as_bytes(),
+        write!(
+            $dst,
+            "\u{001b}[{};{}m{}\u{001b}[0m\n",
+            $crate::Color::Color256($fg).to_fg_code(),
+            $crate::Color::Color256($bg).to_bg_code(),
+            $msg
         )
         .unwrap();
         $dst.flush().unwrap();
     };
     ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                $msg
-            )
-            .as_bytes(),
+        write!(
+            $dst,
+            "\u{001b}[{};{}m{}\u{001b}[0m\n",
+            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+            $msg
         )
         .unwrap();
         $dst.flush().unwrap();
     };
     ($dst:expr, $fg:expr, $bg:expr, $msg:expr) => {
-        $dst.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                $fg.to_fg_code(),
-                $fg.get_separator(&$bg),
-                $bg.to_bg_code(),
-                $msg
-            )
-            .as_bytes(),
+        write!(
+            $dst,
+            "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+            $fg.to_fg_code(),
+            $fg.get_separator(&$bg),
+            $bg.to_bg_code(),
+            $msg
         )
         .unwrap();
         $dst.flush().unwrap();
@@ -140,17 +128,14 @@ macro_rules! print_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         {
             let mut stdout = std::io::stdout().lock();
-            stdout
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m",
-                        $crate::Color::Color256($fg).to_fg_code(),
-                        $crate::Color::Color256($bg).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stdout,
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stdout.flush().unwrap();
         }
     };
@@ -158,35 +143,29 @@ macro_rules! print_styled {
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         {
             let mut stdout = std::io::stdout().lock();
-            stdout
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m",
-                        $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                        $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stdout,
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stdout.flush().unwrap();
         }
     };
     ($fg:expr, $bg:expr, $msg:expr) => {
         {
             let mut stdout = std::io::stdout().lock();
-            stdout
-                .write_all(
-                    format!(
-                        "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                        $fg.to_fg_code(),
-                        $fg.get_separator(&$bg),
-                        $bg.to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stdout,
+                "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                $fg.to_fg_code(),
+                $fg.get_separator(&$bg),
+                $bg.to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stdout.flush().unwrap();
         }
     };
@@ -198,17 +177,14 @@ macro_rules! println_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         {
             let mut stdout = std::io::stdout().lock();
-            stdout
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                        $crate::Color::Color256($fg).to_fg_code(),
-                        $crate::Color::Color256($bg).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stdout,
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stdout.flush().unwrap();
         }
     };
@@ -216,35 +192,29 @@ macro_rules! println_styled {
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         {
             let mut stdout = std::io::stdout().lock();
-            stdout
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                        $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                        $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stdout,
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stdout.flush().unwrap();
         }
     };
     ($fg:expr, $bg:expr, $msg:expr) => {
         {
             let mut stdout = std::io::stdout().lock();
-            stdout
-                .write_all(
-                    format!(
-                        "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                        $fg.to_fg_code(),
-                        $fg.get_separator(&$bg),
-                        $bg.to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stdout,
+                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                $fg.to_fg_code(),
+                $fg.get_separator(&$bg),
+                $bg.to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stdout.flush().unwrap();
         }
     };
@@ -256,17 +226,14 @@ macro_rules! eprint_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         {
             let mut stderr = std::io::stderr().lock();
-            stderr
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m",
-                        $crate::Color::Color256($fg).to_fg_code(),
-                        $crate::Color::Color256($bg).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stderr,
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stderr.flush().unwrap();
         }
     };
@@ -274,35 +241,29 @@ macro_rules! eprint_styled {
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         {
             let mut stderr = std::io::stderr().lock();
-            stderr
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m",
-                        $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                        $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stderr,
+                "\u{001b}[{};{}m{}\u{001b}[0m",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stderr.flush().unwrap();
         }
     };
     ($fg:expr, $bg:expr, $msg:expr) => {
         {
             let mut stderr = std::io::stderr().lock();
-            stderr
-                .write_all(
-                    format!(
-                        "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                        $fg.to_fg_code(),
-                        $fg.get_separator(&$bg),
-                        $bg.to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stderr,
+                "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                $fg.to_fg_code(),
+                $fg.get_separator(&$bg),
+                $bg.to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stderr.flush().unwrap();
         }
     };
@@ -314,17 +275,14 @@ macro_rules! eprintln_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         {
             let mut stderr = std::io::stderr().lock();
-            stderr
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                        $crate::Color::Color256($fg).to_fg_code(),
-                        $crate::Color::Color256($bg).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stderr,
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Color256($fg).to_fg_code(),
+                $crate::Color::Color256($bg).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stderr.flush().unwrap();
         }
     };
@@ -332,35 +290,29 @@ macro_rules! eprintln_styled {
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         {
             let mut stderr = std::io::stderr().lock();
-            stderr
-                .write_all(
-                    format!(
-                        "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                        $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                        $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stderr,
+                "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stderr.flush().unwrap();
         }
     };
     ($fg:expr, $bg:expr, $msg:expr) => {
         {
             let mut stderr = std::io::stderr().lock();
-            stderr
-                .write_all(
-                    format!(
-                        "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                        $fg.to_fg_code(),
-                        $fg.get_separator(&$bg),
-                        $bg.to_bg_code(),
-                        $msg
-                    )
-                    .as_bytes(),
-                )
-                .unwrap();
+            write!(
+                &mut stderr,
+                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                $fg.to_fg_code(),
+                $fg.get_separator(&$bg),
+                $bg.to_bg_code(),
+                $msg
+            )
+            .unwrap();
             stderr.flush().unwrap();
         }
     };

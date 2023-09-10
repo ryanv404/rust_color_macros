@@ -3,7 +3,7 @@ use std::io::Write;
 use color_macros::{print_styled, println_styled};
 
 fn main() {
-    let total_cols = 70;
+    let total_cols = 80;
 
     for col in 0..total_cols {
         let col = col as u32;

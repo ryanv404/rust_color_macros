@@ -1,3 +1,23 @@
+//! `color_macros`
+//!
+//! A library of simple macros for writing colored text to a buffer or to the terminal.
+//!
+//!
+//! ## Features
+//! Set foreground and background colors using macros that are similar to standard Rust
+//! macros.
+
+#![deny(clippy::all)]
+#![deny(clippy::cargo)]
+#![deny(clippy::complexity)]
+#![deny(clippy::correctness)]
+#![deny(clippy::nursery)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::perf)]
+#![deny(clippy::style)]
+#![deny(clippy::suspicious)]
+
+/// Color options
 #[derive(PartialEq, Eq)]
 pub enum Color {
     Black,
@@ -22,6 +42,7 @@ pub enum Color {
     Reset,
 }
 
+/// Write formatted text to a buffer (no new line is appended at the end).
 #[macro_export]
 macro_rules! write_styled {
     ($dst:expr, Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
@@ -32,11 +53,12 @@ macro_rules! write_styled {
                 $crate::Color::Color256($bg).to_bg_code(),
                 $msg
             )
-            .as_bytes()
-        ).unwrap();
+            .as_bytes(),
+        )
+        .unwrap();
         $dst.flush().unwrap();
     };
-    ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         $dst.write_all(
             format!(
@@ -45,8 +67,9 @@ macro_rules! write_styled {
                 $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
                 $msg
             )
-            .as_bytes()
-        ).unwrap();
+            .as_bytes(),
+        )
+        .unwrap();
         $dst.flush().unwrap();
     };
     ($dst:expr, $fg:ident, $bg:ident, $msg:expr) => {
@@ -54,16 +77,22 @@ macro_rules! write_styled {
             format!(
                 "\u{001b}[{}{}{}m{}\u{001b}[0m",
                 $fg.to_fg_code(),
-                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                if !$fg.is_current() && !$bg.is_current() {
+                    ";"
+                } else {
+                    ""
+                },
                 $bg.to_bg_code(),
                 $msg
             )
-            .as_bytes()
-        ).unwrap();
+            .as_bytes(),
+        )
+        .unwrap();
         $dst.flush().unwrap();
     };
 }
 
+/// Write formatted text to a buffer, a new line is appended at the end.
 #[macro_export]
 macro_rules! writeln_styled {
     ($dst:expr, Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
@@ -74,11 +103,12 @@ macro_rules! writeln_styled {
                 $crate::Color::Color256($bg).to_bg_code(),
                 $msg
             )
-            .as_bytes()
-        ).unwrap();
+            .as_bytes(),
+        )
+        .unwrap();
         $dst.flush().unwrap();
     };
-    ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    ($dst:expr, Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
     Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         $dst.write_all(
             format!(
@@ -87,8 +117,9 @@ macro_rules! writeln_styled {
                 $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
                 $msg
             )
-            .as_bytes()
-        ).unwrap();
+            .as_bytes(),
+        )
+        .unwrap();
         $dst.flush().unwrap();
     };
     ($dst:expr, $fg:ident, $bg:ident, $msg:expr) => {
@@ -96,201 +127,254 @@ macro_rules! writeln_styled {
             format!(
                 "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
                 $fg.to_fg_code(),
-                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
+                if !$fg.is_current() && !$bg.is_current() {
+                    ";"
+                } else {
+                    ""
+                },
                 $bg.to_bg_code(),
                 $msg
             )
-            .as_bytes()
-        ).unwrap();
+            .as_bytes(),
+        )
+        .unwrap();
         $dst.flush().unwrap();
     };
 }
 
+/// Write formatted text to stdout (no new line is appended at the end).
 #[macro_export]
 macro_rules! print_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m",
-                $crate::Color::Color256($fg).to_fg_code(),
-                $crate::Color::Color256($bg).to_bg_code(),
-                $msg
+        stdout
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m",
+                    $crate::Color::Color256($fg).to_fg_code(),
+                    $crate::Color::Color256($bg).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stdout.flush().unwrap();
     };
-    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m",
-                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                $msg
+        stdout
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m",
+                    $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                    $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stdout.flush().unwrap();
     };
     ($fg:ident, $bg:ident, $msg:expr) => {
         let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                $fg.to_fg_code(),
-                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
-                $bg.to_bg_code(),
-                $msg
+        stdout
+            .write_all(
+                format!(
+                    "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                    $fg.to_fg_code(),
+                    if !$fg.is_current() && !$bg.is_current() {
+                        ";"
+                    } else {
+                        ""
+                    },
+                    $bg.to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stdout.flush().unwrap();
     };
 }
 
+/// Write formatted text to stdout, a new line is appended at the end.
 #[macro_export]
 macro_rules! println_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                $crate::Color::Color256($fg).to_fg_code(),
-                $crate::Color::Color256($bg).to_bg_code(),
-                $msg
+        stdout
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                    $crate::Color::Color256($fg).to_fg_code(),
+                    $crate::Color::Color256($bg).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stdout.flush().unwrap();
     };
-    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                $msg
+        stdout
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                    $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                    $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stdout.flush().unwrap();
     };
     ($fg:ident, $bg:ident, $msg:expr) => {
         let mut stdout = std::io::stdout().lock();
-        stdout.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                $crate::Color::$fg.to_fg_code(),
-                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
-                $crate::Color::$bg.to_bg_code(),
-                $msg
+        stdout
+            .write_all(
+                format!(
+                    "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                    $crate::Color::$fg.to_fg_code(),
+                    if !$fg.is_current() && !$bg.is_current() {
+                        ";"
+                    } else {
+                        ""
+                    },
+                    $crate::Color::$bg.to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stdout.flush().unwrap();
     };
 }
 
+/// Write formatted text to stderr (no new line is appended at the end).
 #[macro_export]
 macro_rules! eprint_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m",
-                $crate::Color::Color256($fg).to_fg_code(),
-                $crate::Color::Color256($bg).to_bg_code(),
-                $msg
+        stderr
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m",
+                    $crate::Color::Color256($fg).to_fg_code(),
+                    $crate::Color::Color256($bg).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stderr.flush().unwrap();
     };
-    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m",
-                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                $msg
+        stderr
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m",
+                    $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                    $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stderr.flush().unwrap();
     };
     ($fg:ident, $bg:ident, $msg:expr) => {
         let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m",
-                $fg.to_fg_code(),
-                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
-                $bg.to_bg_code(),
-                $msg
+        stderr
+            .write_all(
+                format!(
+                    "\u{001b}[{}{}{}m{}\u{001b}[0m",
+                    $fg.to_fg_code(),
+                    if !$fg.is_current() && !$bg.is_current() {
+                        ";"
+                    } else {
+                        ""
+                    },
+                    $bg.to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stderr.flush().unwrap();
     };
 }
 
+/// Write formatted text to stderr, a new line is appended at the end.
 #[macro_export]
 macro_rules! eprintln_styled {
     (Color256($fg:expr), Color256($bg:expr), $msg:expr) => {
         let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                $crate::Color::Color256($fg).to_fg_code(),
-                $crate::Color::Color256($bg).to_bg_code(),
-                $msg
+        stderr
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                    $crate::Color::Color256($fg).to_fg_code(),
+                    $crate::Color::Color256($bg).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stderr.flush().unwrap();
     };
-    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr), 
+    (Rgb($fg_r:expr, $fg_g:expr, $fg_b:expr),
      Rgb($bg_r:expr, $bg_g:expr, $bg_b:expr), $msg:expr) => {
         let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{};{}m{}\u{001b}[0m\n",
-                $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
-                $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
-                $msg
+        stderr
+            .write_all(
+                format!(
+                    "\u{001b}[{};{}m{}\u{001b}[0m\n",
+                    $crate::Color::Rgb($fg_r, $fg_g, $fg_b).to_fg_code(),
+                    $crate::Color::Rgb($bg_r, $bg_g, $bg_b).to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stderr.flush().unwrap();
     };
     ($fg:ident, $bg:ident, $msg:expr) => {
         let mut stderr = std::io::stderr().lock();
-        stderr.write_all(
-            format!(
-                "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-                $fg.to_fg_code(),
-                if ! $fg.is_current() && ! $bg.is_current() { ";" } else { "" },
-                $bg.to_bg_code(),
-                $msg
+        stderr
+            .write_all(
+                format!(
+                    "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
+                    $fg.to_fg_code(),
+                    if !$fg.is_current() && !$bg.is_current() {
+                        ";"
+                    } else {
+                        ""
+                    },
+                    $bg.to_bg_code(),
+                    $msg
+                )
+                .as_bytes(),
             )
-            .as_bytes()
-        ).unwrap();
+            .unwrap();
         stderr.flush().unwrap();
     };
 }
 
 impl Color {
+    /// Returns true if this Color instance is `Color::Current`.
+    #[must_use]
     pub fn is_current(&self) -> bool {
         *self == Self::Current
     }
 
+    /// Returns the numeric portion of the foreground ANSI color code.
+    #[must_use]
     pub fn to_fg_code(&self) -> String {
         match *self {
             Self::Black => "30".to_string(),
@@ -309,13 +393,15 @@ impl Color {
             Self::BrightMagenta => "95".to_string(),
             Self::BrightCyan => "96".to_string(),
             Self::BrightWhite => "97".to_string(),
-            Self::Color256(num) => format!("38;5;{}", num),
-            Self::Rgb(r, g, b) => format!("38;2;{};{};{}", r, g, b),
-            Self::Current => "".to_string(),
-            Self::Reset => "0".to_string()
+            Self::Color256(num) => format!("38;5;{num}"),
+            Self::Rgb(r, g, b) => format!("38;2;{r};{g};{b}"),
+            Self::Current => String::new(),
+            Self::Reset => "0".to_string(),
         }
     }
 
+    /// Returns the numeric portion of the background ANSI color code.
+    #[must_use]
     pub fn to_bg_code(&self) -> String {
         match *self {
             Self::Black => "40".to_string(),
@@ -334,10 +420,10 @@ impl Color {
             Self::BrightMagenta => "105".to_string(),
             Self::BrightCyan => "106".to_string(),
             Self::BrightWhite => "107".to_string(),
-            Self::Color256(num) => format!("48;5;{}", num),
-            Self::Rgb(r, g, b) => format!("48;2;{};{};{}", r, g, b),
-            Self::Current => "".to_string(),
-            Self::Reset => "0".to_string()
+            Self::Color256(num) => format!("48;5;{num}"),
+            Self::Rgb(r, g, b) => format!("48;2;{r};{g};{b}"),
+            Self::Current => String::new(),
+            Self::Reset => "0".to_string(),
         }
     }
 }
@@ -359,14 +445,19 @@ mod tests {
                 assert_eq!(output.as_slice(), $expected);
             }
         };
-        ($name:ident: 
-         Rgb($fg_r:literal, $fg_g:literal, $fg_b:literal), 
-         Rgb($bg_r:literal, $bg_g:literal, $bg_b:literal), 
+        ($name:ident:
+         Rgb($fg_r:literal, $fg_g:literal, $fg_b:literal),
+         Rgb($bg_r:literal, $bg_g:literal, $bg_b:literal),
          $msg:literal => $expected:literal) => {
             #[test]
             fn $name() {
                 let mut output: Vec<u8> = vec![];
-                write_styled!(&mut output, Rgb($fg_r, $fg_g, $fg_b), Rgb($bg_r, $bg_g, $bg_b), $msg);
+                write_styled!(
+                    &mut output,
+                    Rgb($fg_r, $fg_g, $fg_b),
+                    Rgb($bg_r, $bg_g, $bg_b),
+                    $msg
+                );
                 assert_eq!(output.as_slice(), $expected);
             }
         };
@@ -421,14 +512,14 @@ mod tests {
     test_color!(color256_2: Color256(12), Color256(255), "hi" => b"\x1b[38;5;12;48;5;255mhi\x1b[0m");
 
     // RGB tests
-    test_color!(rgb_1: 
-        Rgb(192, 123, 23), 
+    test_color!(rgb_1:
+        Rgb(192, 123, 23),
         Rgb(231, 12, 73),
         "hi" => b"\x1b[38;2;192;123;23;48;2;231;12;73mhi\x1b[0m"
     );
-    test_color!(rgb_2: 
-        Rgb(92, 13, 239), 
-        Rgb(132, 1, 177), 
+    test_color!(rgb_2:
+        Rgb(92, 13, 239),
+        Rgb(132, 1, 177),
         "hi" => b"\x1b[38;2;92;13;239;48;2;132;1;177mhi\x1b[0m"
     );
 

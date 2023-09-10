@@ -1,0 +1,9 @@
+[package]
+name = "color_macros"
+description = "Simple macros for writing colored text to a buffer or to the terminal."
+authors = ["ryanv404"]
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/ryanv404/color_macros"
+keywords = ["ansi", "terminal", "colors", "macros"]
+categories = ["command-line-interface"]

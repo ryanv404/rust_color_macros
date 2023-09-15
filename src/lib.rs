@@ -250,9 +250,9 @@ macro_rules! eprintln_color {
 /// let mut buffer: Vec<u8> = vec![];
 ///
 /// // Write red text on a white background to a buffer.
-/// write_color256!(&mut buffer, 21, 255, "test");
+/// write_color256!(&mut buffer, 196, 255, "test");
 ///
-/// assert_eq!(buffer.as_slice(), b"\x1b[38;5;21;48;5;255mtest\x1b[0m");
+/// assert_eq!(buffer.as_slice(), b"\x1b[38;5;196;48;5;255mtest\x1b[0m");
 /// ```
 #[macro_export]
 macro_rules! write_color256 {
@@ -299,7 +299,7 @@ macro_rules! writeln_color256 {
 /// use color_macros::print_color256;
 ///
 /// // Prints red text on a white background to stdout.
-/// print_color256!(21, 255, "test");
+/// print_color256!(196, 255, "test");
 /// ```
 #[macro_export]
 macro_rules! print_color256 {
@@ -348,7 +348,7 @@ macro_rules! println_color256 {
 /// use color_macros::eprint_color256;
 ///
 /// // Prints red text on a white background to stderr.
-/// eprint_color256!(21, 255, "test");
+/// eprint_color256!(196, 255, "test");
 /// ```
 #[macro_export]
 macro_rules! eprint_color256 {
@@ -451,7 +451,7 @@ macro_rules! writeln_rgb {
 /// use color_macros::print_rgb;
 ///
 /// // Print red text on a white background to stdout.
-/// print_rgb!((211, 222, 233), (0, 0, 0), "test");
+/// print_rgb!((211, 0, 0), (255, 255, 255), "test");
 /// ```
 #[macro_export]
 macro_rules! print_rgb {
@@ -502,7 +502,7 @@ macro_rules! println_rgb {
 /// use color_macros::eprint_rgb;
 ///
 /// // Print red text on a white background to stderr.
-/// eprint_rgb!((211, 222, 233), (0, 0, 0), "test");
+/// eprint_rgb!((211, 0, 0), (255, 255, 255), "test");
 /// ```
 #[macro_export]
 macro_rules! eprint_rgb {

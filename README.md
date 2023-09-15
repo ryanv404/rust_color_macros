@@ -76,9 +76,9 @@ use color_macros::write_color256;
 let mut buffer: Vec<u8> = vec![];
 
 // Write red text on a white background to a buffer.
-write_color256!(&mut buffer, 21, 255, "test");
+write_color256!(&mut buffer, 196, 255, "test");
 
-assert_eq!(buffer.as_slice(), b"\x1b[38;5;21;48;5;255mtest\x1b[0m");
+assert_eq!(buffer.as_slice(), b"\x1b[38;5;196;48;5;255mtest\x1b[0m");
 
 // `writeln_color256!()` is the same as `write_color256!()` with
 // a newline appended to the end.
@@ -91,7 +91,7 @@ use std::io::Write;
 use color_macros::print_color256;
 
 // Prints red text on a white background to stdout.
-print_color256!(21, 255, "test");
+print_color256!(196, 255, "test");
 
 // `println_color256!()` is the same as `print_color256!()` with
 // a newline appended to the end.
@@ -104,7 +104,7 @@ use std::io::Write;
 use color_macros::eprint_color256;
 
 // Prints red text on a white background to stderr.
-eprint_color256!(21, 255, "test");
+eprint_color256!(196, 255, "test");
 
 // `eprintln_color256!()` is the same as `eprint_color256!()` with
 // a newline appended to the end.
@@ -139,7 +139,7 @@ use std::io::Write;
 use color_macros::print_rgb;
 
 // Print red text on a white background to stdout.
-print_rgb!((211, 222, 233), (0, 0, 0), "test");
+print_rgb!((211, 0, 0), (255, 255, 255), "test");
 
 // `println_rgb!()` is the same as `print_rgb!()` with a
 // newline appended to the end.
@@ -152,7 +152,7 @@ use std::io::Write;
 use color_macros::eprint_rgb;
 
 // Print red text on a white background to stderr.
-eprint_rgb!((211, 222, 233), (0, 0, 0), "test");
+eprint_rgb!((211, 0, 0), (255, 255, 255), "test");
 
 // `eprintln_rgb!()` is the same as `eprint_rgb!()` with a
 // newline appended to the end.

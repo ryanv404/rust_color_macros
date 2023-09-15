@@ -54,8 +54,8 @@ style string sets the background color without altering the foreground.
 Basic Color Mode Macros and Examples
 ------------------------------------
 
-`write_styled!(buffer, style_string, text)`
-`writeln_styled!(buffer, style_string, text)`
+* `write_styled!(buffer, style_string, text)`
+* `writeln_styled!(buffer, style_string, text)`
 
 ```rust
 use color_macros::write_styled;
@@ -71,8 +71,8 @@ write_styled!(&mut buffer, "briGHt ReD on cURrenT", "test");
 assert_eq!(buffer.as_slice(), b"\x1b[91mtest\x1b[0m");
 ```
 
-`print_styled!(style_string, text)`
-`println_styled!(style_string, text)`
+* `print_styled!(style_string, text)`
+* `println_styled!(style_string, text)`
 
 ```rust
 use color_macros::print_styled;
@@ -82,8 +82,8 @@ use color_macros::print_styled;
 println_styled!("Red on White", "test");
 ```
 
-`eprint_styled!(style_string, text)`
-`eprintln_styled!(style_string, text)`
+* `eprint_styled!(style_string, text)`
+* `eprintln_styled!(style_string, text)`
 
 ```rust
 use color_macros::eprint_styled;
@@ -101,8 +101,8 @@ from 0 - 255.
 256-Color Mode Macros and Examples
 ----------------------------------
 
-`write_color256!(buffer, fg_color_num, bg_color_num, text)`
-`writeln_color256!(buffer, fg_color_num, bg_color_num, text)`
+* `write_color256!(buffer, fg_color_num, bg_color_num, text)`
+* `writeln_color256!(buffer, fg_color_num, bg_color_num, text)`
 
 ```rust
 use color_macros::write_color256;
@@ -118,8 +118,8 @@ assert_eq!(
 );
 ```
 
-`print_color256!(fg_color_num, bg_color_num, text)`
-`println_color256!(fg_color_num, bg_color_num, text)`
+* `print_color256!(fg_color_num, bg_color_num, text)`
+* `println_color256!(fg_color_num, bg_color_num, text)`
 
 ```rust
 use color_macros::print_color256;
@@ -128,8 +128,8 @@ use color_macros::print_color256;
 print_color256!(196, 255, "test");
 ```
 
-`eprint_color256!(fg_color_num, bg_color_num, text)`
-`eprintln_color256!(fg_color_num, bg_color_num, text)`
+* `eprint_color256!(fg_color_num, bg_color_num, text)`
+* `eprintln_color256!(fg_color_num, bg_color_num, text)`
 
 ```rust
 use color_macros::eprint_color256;
@@ -147,8 +147,8 @@ blue color values, each ranging from 0 - 255.
 24-Bit RGB Color Mode Macros and Examples
 -----------------------------------------
 
-`write_rgb!(buffer, (fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
-`writeln_rgb!(buffer, (fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
+* `write_rgb!(buffer, (fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
+* `writeln_rgb!(buffer, (fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
 
 ```rust
 use color_macros::write_rgb;
@@ -164,8 +164,8 @@ assert_eq!(
 );
 ```
 
-`print_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
-`println_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
+* `print_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
+* `println_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
 
 ```rust
 use color_macros::print_rgb;
@@ -174,8 +174,8 @@ use color_macros::print_rgb;
 print_rgb!((211, 0, 0), (255, 255, 255), "test");
 ```
 
-`eprint_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
-`eprintln_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
+* `eprint_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
+* `eprintln_rgb!((fg_r, fg_g, fg_b), (bg_r, bg_g, bg_b), text)`
 
 ```rust
 use color_macros::eprint_rgb;

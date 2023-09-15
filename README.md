@@ -6,15 +6,15 @@ to the terminal.
 
 ## Features
 Set foreground and background colors using macros that are reminiscent of
-the Rust standard library macros. There are three different color modes:
-basic color mode, 256-color mode, 24-bit RGB color mode.
+the Rust standard library macros.
 
-## Examples
-### Basic Color Mode:
+There are three different color modes: [basic color mode](#Basic-Color-Mode), [256-color mode](#256-Color-Mode), [24-bit RGB color mode](#24-Bit-RGB-Color-Mode).
+
+### Basic Color Mode
 Foreground and background colors are set using named `Color` options:
-Black, Red, Green, Yellow, Blue, Magenta, Cyan, White,
-BrBlack, BrRed, BrGreen, BrYellow, BrBlue, BrMagenta, BrCyan, BrWhite,
-and Current.
+`Black`, `Red`, `Green`, `Yellow`, `Blue`, `Magenta`, `Cyan`, `White`,
+`BrBlack`, `BrRed`, `BrGreen`, `BrYellow`, `BrBlue`, `BrMagenta`,
+`BrCyan`, `BrWhite`, and `Current`.
 
 ```rust
 use std::io::Write;
@@ -50,7 +50,7 @@ eprint_color!(Color::Red, Color::White, "test");
 // `eprintln_color!()` is the same as `eprint_color!()` with a newline appended to the end.
 ```
 
-### 256-Color Mode:
+### 256-Color Mode
 Foreground and background colors are set using color numbers ranging from 0 - 255.
 
 ```rust
@@ -87,7 +87,7 @@ eprint_color256!(21, 255, "test");
 // `eprintln_color256!()` is the same as `eprint_color256!()` with a newline appended to the end.
 ```
 
-### 24-Bit RGB Color Mode:
+### 24-Bit RGB Color Mode
 Foreground and background colors are set using tuples containing red, green, and
 blue values.
 

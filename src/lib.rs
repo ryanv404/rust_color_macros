@@ -58,7 +58,7 @@
 #![deny(missing_docs)]
 
 /// Color options
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq)]
 pub enum Color {
     /// Black
     Black,
@@ -123,7 +123,6 @@ impl From<&str> for Color {
 }
 
 /// Wrapper that represents a regular foreground color.
-#[derive(Debug)]
 pub struct Fg;
 
 impl Fg {
@@ -148,7 +147,6 @@ impl Fg {
 }
 
 /// Wrapper that represents a bright foreground color.
-#[derive(Debug)]
 pub struct FgBright;
 
 impl FgBright {
@@ -173,7 +171,6 @@ impl FgBright {
 }
 
 /// Wrapper that represents a regular background color.
-#[derive(Debug)]
 pub struct Bg;
 
 impl Bg {
@@ -198,7 +195,6 @@ impl Bg {
 }
 
 /// Wrapper that represents a bright background color.
-#[derive(Debug)]
 pub struct BgBright;
 
 impl BgBright {
@@ -790,9 +786,10 @@ mod tests {
 
         for (fg_color, bg_color) in (0..=255).zip(0..=255) {
             write_color256!(&mut output, fg_color, bg_color, "hi");
-            expected.extend(format!("\x1b[38;5;{fg_color};48;5;{bg_color}mhi\x1b[0m").as_bytes());
+            expected.extend(
+                format!("\x1b[38;5;{fg_color};48;5;{bg_color}mhi\x1b[0m").as_bytes()
+            );
         }
-
         assert!(&output[..] == &expected[..]);
     }
 
@@ -807,7 +804,7 @@ mod tests {
                 for b in (0..=255).step_by(10) {
                     write_rgb!(&mut output, (r, g, b), (255, 255, 255), "hi");
                     expected.extend(
-                        format!("\x1b[38;2;{r};{g};{b};48;2;255;255;255mhi\x1b[0m").as_bytes(),
+                        format!("\x1b[38;2;{r};{g};{b};48;2;255;255;255mhi\x1b[0m").as_bytes()
                     );
                 }
             }
@@ -826,7 +823,7 @@ mod tests {
                 for b in (0..=255).step_by(10) {
                     write_rgb!(&mut output, (255, 255, 255), (r, g, b), "hi");
                     expected.extend(
-                        format!("\x1b[38;2;255;255;255;48;2;{r};{g};{b}mhi\x1b[0m").as_bytes(),
+                        format!("\x1b[38;2;255;255;255;48;2;{r};{g};{b}mhi\x1b[0m").as_bytes()
                     );
                 }
             }
@@ -884,8 +881,10 @@ mod tests {
             for bg_idx in (0..BG_COLORS.len()).rev() {
                 let fg_color = FG_COLORS[fg_idx].0;
                 let bg_color = BG_COLORS[bg_idx].0;
+
                 let fg_code = FG_COLORS[fg_idx].1;
                 let bg_code = BG_COLORS[bg_idx].1;
+
                 let style = format!("{fg_color} on {bg_color}");
                 write_styled!(&mut output, style, style);
                 expected.extend(

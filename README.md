@@ -27,9 +27,11 @@ Features
 Set foreground and background colors using simple to use macros that are
 reminiscent of the most popular Rust standard library macros.
 
-* write_styled/write_color256/write_rgb macros write colored text to a buffer.
-* print_styled/print_color256/print_rgb macros print colored text to stdout.
-* eprint_styled/eprint_color256/eprint_rgb macros print colored text to stderr.
+* `write_styled`/`write_color256`/`write_rgb` write colored text to a buffer.
+* `print_styled`/`print_color256`/`print_rgb` print colored text to stdout.
+* `eprint_styled`/`eprint_color256`/`eprint_rgb` print colored text to stderr.
+
+Note that each macro has a newline version (e.g. `println_styled`).
 
 
 Usage

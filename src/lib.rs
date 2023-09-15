@@ -1,10 +1,49 @@
 //! `color_macros`
+//! 
 //! [![Rust](https://github.com/ryanv404/rust_color_macros/actions/workflows/rust.yml/badge.svg)](https://github.com/ryanv404/rust_color_macros/actions/workflows/rust.yml)
-//! A library of simple macros for writing colored text to a buffer or to the terminal.
+//! 
+//! A simple Rust library containing easy-to-use macros for writing colored
+//! text to a buffer or to the terminal.
+//! 
+//! Features
+//! ========
+//! 
+//! Set foreground and background colors using simple to use macros that are
+//! reminiscent of the most popular Rust standard library macros.
+//! 
+//! * `write_styled`/`write_color256`/`write_rgb` macros write colored text to a buffer.
+//! * `print_styled`/`print_color256`/`print_rgb` macros print colored text to stdout.
+//! * `eprint_styled`/`eprint_color256`/`eprint_rgb` macros print colored text to stderr.
+//! 
+//! 
+//! Usage
+//! =====
+//! 
+//! Basic Color Mode
+//! ----------------
+//! 
+//! Foreground and background colors are set using an "X on Y" style string, where
+//! X and Y are each one of the following color options:
+//! 
+//! black, red, green, yellow, blue, magenta, cyan, white, bright black, bright red,
+//! bright green, bright yellow, bright blue, bright magenta, bright cyan,
+//! bright white, or current.
+//! 
+//! Entering "X" alone (e.g. "red") for the style string sets the foreground color
+//! without altering the background, while entering "on Y" (e.g. "on red") for the
+//! style string sets the background color without altering the foreground.
+//! 
+//! 256-Color Mode
+//! --------------
+//! 
+//! Foreground and background colors are set using color numbers ranging from 0 - 255.
+//! 
+//! 24-Bit RGB Color Mode
+//! ---------------------
+//! 
+//! Foreground and background colors are set using tuples containing red, green, and
+//! blue color values, each ranging from 0 - 255.
 //!
-//! ## Features
-//! Set foreground and background colors using macros that are reminiscent of the Rust
-//! standard library macros.
 
 #![deny(clippy::all)]
 #![deny(clippy::cargo)]
@@ -772,7 +811,6 @@ mod tests {
                 }
             }
         }
-
         assert!(&output[..] == &expected[..]);
     }
 
@@ -792,7 +830,6 @@ mod tests {
                 }
             }
         }
-
         assert!(&output[..] == &expected[..]);
     }
 
@@ -800,43 +837,43 @@ mod tests {
     #[test]
     fn test_all_write_styled_fg_and_bg_color_combos() {
         const FG_COLORS: [(&str, &str); 17] = [
-            ("black", "30"),
-            ("red", "31"),
-            ("green", "32"),
-            ("yellow", "33"),
-            ("blue", "34"),
-            ("magenta", "35"),
-            ("cyan", "36"),
-            ("white", "37"),
-            ("bright black", "90"),
-            ("bright red", "91"),
-            ("bright green", "92"),
-            ("bright yellow", "93"),
-            ("bright blue", "94"),
-            ("bright magenta", "95"),
-            ("bright cyan", "96"),
-            ("bright white", "97"),
             ("current", ""),
+            ("black",   "30"),
+            ("red",     "31"),
+            ("green",   "32"),
+            ("yellow",  "33"),
+            ("blue",    "34"),
+            ("magenta", "35"),
+            ("cyan",    "36"),
+            ("white",   "37"),
+            ("bright black",   "90"),
+            ("bright red",     "91"),
+            ("bright green",   "92"),
+            ("bright yellow",  "93"),
+            ("bright blue",    "94"),
+            ("bright magenta", "95"),
+            ("bright cyan",    "96"),
+            ("bright white",   "97"),
         ];
 
         const BG_COLORS: [(&str, &str); 17] = [
-            ("black", "40"),
-            ("red", "41"),
-            ("green", "42"),
-            ("yellow", "43"),
-            ("blue", "44"),
-            ("magenta", "45"),
-            ("cyan", "46"),
-            ("white", "47"),
-            ("bright black", "100"),
-            ("bright red", "101"),
-            ("bright green", "102"),
-            ("bright yellow", "103"),
-            ("bright blue", "104"),
-            ("bright magenta", "105"),
-            ("bright cyan", "106"),
-            ("bright white", "107"),
             ("current", ""),
+            ("black",   "40"),
+            ("red",     "41"),
+            ("green",   "42"),
+            ("yellow",  "43"),
+            ("blue",    "44"),
+            ("magenta", "45"),
+            ("cyan",    "46"),
+            ("white",   "47"),
+            ("bright black",   "100"),
+            ("bright red",     "101"),
+            ("bright green",   "102"),
+            ("bright yellow",  "103"),
+            ("bright blue",    "104"),
+            ("bright magenta", "105"),
+            ("bright cyan",    "106"),
+            ("bright white",   "107"),
         ];
 
         let mut output = Vec::new();
@@ -866,7 +903,6 @@ mod tests {
                 );
             }
         }
-
         assert!(&output[..] == &expected[..]);
     }
 }

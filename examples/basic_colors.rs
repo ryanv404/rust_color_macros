@@ -1,21 +1,31 @@
-use std::io::Write;
-
-use color_macros::{
-    print_color, println_color,
-    Color::{self, *},
-};
+use color_macros::{print_styled, println_styled};
 
 fn main() {
-    let reg_colors: [Color; 8] = [Black, Red, Green, Yellow, Blue, Magenta, Cyan, White];
-
-    let bright_colors: [Color; 8] = [
-        BrBlack, BrRed, BrGreen, BrYellow, BrBlue, BrMagenta, BrCyan, BrWhite,
+    let colors: [&str; 16] = [
+        "Black",
+        "Red",
+        "Green",
+        "Yellow",
+        "Blue",
+        "Magenta",
+        "Cyan",
+        "White",
+        "Bright Black",
+        "Bright Red",
+        "Bright Green",
+        "Bright Yellow",
+        "Bright Blue",
+        "Bright Magenta",
+        "Bright Cyan",
+        "Bright White",
     ];
 
-    (0..=7).for_each(|row| {
-        (0..=7).for_each(|col| match (col, row) {
-            (7, r) => println_color!(bright_colors[7], reg_colors[r], "[ + ]"),
-            (c, r) => print_color!(bright_colors[c], reg_colors[r], "[ + ]"),
-        });
-    });
+    for row in 0..=15 {
+        for col in 0..=15 {
+            match (col, row) {
+                (15, r) => println_styled!(format!("{} on {}", colors[15], colors[r]), "[ + ]"),
+                (c, r) => print_styled!(format!("{} on {}", colors[c], colors[r]), "[ + ]"),
+            }
+        }
+    }
 }

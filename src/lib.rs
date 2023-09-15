@@ -4,22 +4,7 @@
 //!
 //! ## Features
 //! Set foreground and background colors using macros that are reminiscent of the Rust
-//! standard library macros. There are three different color modes.
-//!
-//! Basic Color Mode:
-//! - Writes to buffer: `write_color!()`, `writeln_color!()`
-//! - Prints to stdout: `print_color!()`, `println_color!()`
-//! - Prints to stderr: `eprint_color!()`, `eprintln_color!()`
-//!
-//! 256-Color Mode:
-//! - Writes to buffer: `write_color256!()`, `writeln_color256!()`
-//! - Prints to stdout: `print_color256!()`, `println_color256!()`
-//! - Prints to stderr: `eprint_color256!()`, `eprintln_color256!()`
-//!
-//! 24-Bit RGB Color Mode:
-//! - Writes to buffer: `write_rgb!()`, `writeln_rgb!()`
-//! - Prints to stdout: `print_rgb!()`, `println_rgb!()`
-//! - Prints to stderr: `eprint_rgb!()`, `eprintln_rgb!()`
+//! standard library macros.
 
 #![deny(clippy::all)]
 #![deny(clippy::cargo)]
@@ -33,7 +18,7 @@
 #![deny(missing_docs)]
 
 /// Color options
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Color {
     /// Black
     Black,
@@ -51,112 +36,313 @@ pub enum Color {
     Cyan,
     /// White
     White,
-    /// Bright black
-    BrBlack,
-    /// Bright red
-    BrRed,
-    /// Bright green
-    BrGreen,
-    /// Bright yellow
-    BrYellow,
-    /// Bright blue
-    BrBlue,
-    /// Bright magenta
-    BrMagenta,
-    /// Bright cyan
-    BrCyan,
-    /// Bright white
-    BrWhite,
-    /// Current color value
-    Current,
-    /// Reset color attributes
-    Reset,
     /// 256-color mode colors
     Color256(u8),
     /// 24-bit RGB colors
     Rgb(u8, u8, u8),
+    /// Current color value
+    Current,
+    /// Reset color attributes
+    Reset,
+}
+
+impl Color {
+    /// Returns true if this `Color` instance is `Color::Current`.
+    #[must_use]
+    pub fn is_current(&self) -> bool {
+        *self == Self::Current
+    }
+
+    /// Returns a semicolon separator if self and other are not `Current`.
+    /// Else it returns an empty string.
+    #[must_use]
+    pub fn get_separator(&self, other_is_current: bool) -> String {
+        if !self.is_current() && !other_is_current {
+            ";".to_string()
+        } else {
+            String::new()
+        }
+    }
+}
+
+impl From<&str> for Color {
+    fn from(value: &str) -> Self {
+        match value {
+            "black" => Self::Black,
+            "red" => Self::Red,
+            "green" => Self::Green,
+            "yellow" => Self::Yellow,
+            "blue" => Self::Blue,
+            "magenta" => Self::Magenta,
+            "cyan" => Self::Cyan,
+            "white" => Self::White,
+            "reset" => Self::Reset,
+            _ => Self::Current,
+        }
+    }
+}
+
+/// Wrapper that represents a regular foreground color.
+#[derive(Debug)]
+pub struct Fg;
+
+impl Fg {
+    /// Returns the numeric portion of the foreground ANSI color code.
+    #[must_use]
+    pub fn get_ansi_code(color: &Color) -> String {
+        match *color {
+            Color::Black => "30".to_string(),
+            Color::Red => "31".to_string(),
+            Color::Green => "32".to_string(),
+            Color::Yellow => "33".to_string(),
+            Color::Blue => "34".to_string(),
+            Color::Magenta => "35".to_string(),
+            Color::Cyan => "36".to_string(),
+            Color::White => "37".to_string(),
+            Color::Reset => "0".to_string(),
+            Color::Color256(num) => format!("38;5;{num}"),
+            Color::Rgb(r, g, b) => format!("38;2;{r};{g};{b}"),
+            Color::Current => String::new(),
+        }
+    }
+}
+
+/// Wrapper that represents a bright foreground color.
+#[derive(Debug)]
+pub struct FgBright;
+
+impl FgBright {
+    /// Returns the numeric portion of the foreground ANSI color code.
+    #[must_use]
+    pub fn get_ansi_code(color: &Color) -> String {
+        match *color {
+            Color::Black => "90".to_string(),
+            Color::Red => "91".to_string(),
+            Color::Green => "92".to_string(),
+            Color::Yellow => "93".to_string(),
+            Color::Blue => "94".to_string(),
+            Color::Magenta => "95".to_string(),
+            Color::Cyan => "96".to_string(),
+            Color::White => "97".to_string(),
+            Color::Reset => "0".to_string(),
+            Color::Color256(num) => format!("38;5;{num}"),
+            Color::Rgb(r, g, b) => format!("38;2;{r};{g};{b}"),
+            Color::Current => String::new(),
+        }
+    }
+}
+
+/// Wrapper that represents a regular background color.
+#[derive(Debug)]
+pub struct Bg;
+
+impl Bg {
+    /// Returns the numeric portion of the background ANSI color code.
+    #[must_use]
+    pub fn get_ansi_code(color: &Color) -> String {
+        match *color {
+            Color::Black => "40".to_string(),
+            Color::Red => "41".to_string(),
+            Color::Green => "42".to_string(),
+            Color::Yellow => "43".to_string(),
+            Color::Blue => "44".to_string(),
+            Color::Magenta => "45".to_string(),
+            Color::Cyan => "46".to_string(),
+            Color::White => "47".to_string(),
+            Color::Reset => "0".to_string(),
+            Color::Color256(num) => format!("48;5;{num}"),
+            Color::Rgb(r, g, b) => format!("48;2;{r};{g};{b}"),
+            Color::Current => String::new(),
+        }
+    }
+}
+
+/// Wrapper that represents a bright background color.
+#[derive(Debug)]
+pub struct BgBright;
+
+impl BgBright {
+    /// Returns the numeric portion of the foreground ANSI color code.
+    #[must_use]
+    pub fn get_ansi_code(color: &Color) -> String {
+        match *color {
+            Color::Black => "100".to_string(),
+            Color::Red => "101".to_string(),
+            Color::Green => "102".to_string(),
+            Color::Yellow => "103".to_string(),
+            Color::Blue => "104".to_string(),
+            Color::Magenta => "105".to_string(),
+            Color::Cyan => "106".to_string(),
+            Color::White => "107".to_string(),
+            Color::Reset => "0".to_string(),
+            Color::Color256(num) => format!("48;5;{num}"),
+            Color::Rgb(r, g, b) => format!("48;2;{r};{g};{b}"),
+            Color::Current => String::new(),
+        }
+    }
+}
+
+/// Parses the style expression in `x_styled!()` macros and returns a string
+/// containing the ansi color code(s).
+#[macro_export]
+macro_rules! parse_colors {
+    ($style:expr) => {{
+        use $crate::{Color, Bg, Fg, BgBright, FgBright};
+
+        let style_args: Vec<String> = $style.split(' ')
+            .map(|s| {
+                let s = s.trim();
+                let mut new_str = s.to_string();
+                new_str.make_ascii_lowercase();
+                new_str
+            })
+            .collect();
+
+        let style_strs: Vec<&str> = style_args.iter()
+            .map(|s| s.as_str())
+            .collect();
+
+        let mut ansi_code = String::new();
+
+        match style_strs.len() {
+            // Regular foreground color (e.g. "red")
+            1 => {
+                ansi_code.push_str(&Fg::get_ansi_code(&Color::from(style_strs[0])));
+                ansi_code.push('m');
+            },
+            2 => match style_strs[..] {
+                // Regular background color (e.g. "on red")
+                ["on", bg_color] => {
+                    ansi_code.push_str(&Bg::get_ansi_code(&Color::from(bg_color)));
+                    ansi_code.push('m');
+                },
+                // Bright foreground color (e.g. "bright red")
+                ["bright", fg_br_color] => {
+                    ansi_code.push_str(&FgBright::get_ansi_code(&Color::from(fg_br_color)));
+                    ansi_code.push('m');
+                },
+                _ => {},
+            },
+            3 => match style_strs[..] {
+                // Bright background color (e.g. "on bright red")
+                ["on", "bright", bg_br_color] => {
+                    ansi_code.push_str(&BgBright::get_ansi_code(&Color::from(bg_br_color)));
+                    ansi_code.push('m');
+                },
+                // Regular foreground color and regular background color (e.g. "green on red")
+                [fg_color, "on", bg_color] => {
+                    ansi_code.push_str(&Fg::get_ansi_code(&Color::from(fg_color)));
+                    if fg_color != "current" && bg_color != "current" { ansi_code.push(';') }
+                    ansi_code.push_str(&Bg::get_ansi_code(&Color::from(bg_color)));
+                    ansi_code.push('m');
+                },
+                _ => {},
+            },
+            4 => match style_strs[..] {
+                // Regular foreground color and bright background color (e.g. "green on bright red")
+                [fg_color, "on", "bright", bg_br_color] => {
+                    ansi_code.push_str(&Fg::get_ansi_code(&Color::from(fg_color)));
+                    if fg_color != "current" && bg_br_color != "current" { ansi_code.push(';') }
+                    ansi_code.push_str(&BgBright::get_ansi_code(&Color::from(bg_br_color)));
+                    ansi_code.push('m');
+                },
+                // Bright foreground color and regular background color (e.g. "bright green on red")
+                ["bright", fg_br_color, "on", bg_color] => {
+                    ansi_code.push_str(&FgBright::get_ansi_code(&Color::from(fg_br_color)));
+                    if fg_br_color != "current" && bg_color != "current" { ansi_code.push(';') }
+                    ansi_code.push_str(&Bg::get_ansi_code(&Color::from(bg_color)));
+                    ansi_code.push('m');
+                },
+                _ => {},
+            },
+            5 => match style_strs[..] {
+                // Bright foreground color and bright background color (e.g. "bright green on bright red")
+                ["bright", fg_br_color, "on", "bright", bg_br_color] => {
+                    ansi_code.push_str(&FgBright::get_ansi_code(&Color::from(fg_br_color)));
+                    if fg_br_color != "current" && bg_br_color != "current" { ansi_code.push(';') }
+                    ansi_code.push_str(&BgBright::get_ansi_code(&Color::from(bg_br_color)));
+                    ansi_code.push('m');
+                },
+                _ => {},
+            },
+            _ => {},
+        }
+        ansi_code
+    }};
 }
 
 /// Write color text to a buffer.
 ///
 /// # Arguments
 /// * `$buffer` - The destination buffer.
-/// * `$fg` - The foreground `Color` value.
-/// * `$bg` - The background `Color` value.
+/// * `$style` - "X on Y" style string (e.g. "bright green on white".
 /// * `$text` - The text to write.
 ///
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
-/// use color_macros::{write_color, Color};
+/// use color_macros::write_styled;
 ///
 /// let mut buffer: Vec<u8> = vec![];
 ///
-/// // Write red text on a white background to a buffer.
-/// write_color!(&mut buffer, Color::Red, Color::White, "test");
+/// // Write text whose color is the currently set foreground color on
+/// // a bright magenta background to a buffer.
+/// write_styled!(&mut buffer, "current on bright magenta", "test");
 ///
-/// assert_eq!(buffer.as_slice(), b"\x1b[31;47mtest\x1b[0m");
+/// assert_eq!(buffer.as_slice(), b"\x1b[105mtest\x1b[0m");
 /// ```
 #[macro_export]
-macro_rules! write_color {
-    ($buffer:expr, $fg:expr, $bg:expr, $text:expr) => {
+macro_rules! write_styled {
+    ($buffer:expr, $style:expr, $text:expr) => {{
+        use std::io::Write;
         write!(
             $buffer,
-            "\u{001b}[{}{}{}m{}\u{001b}[0m",
-            $fg.get_fg_code(),
-            $fg.get_separator(&$bg),
-            $bg.get_bg_code(),
+            "\u{001b}[{}{}\u{001b}[0m",
+            $crate::parse_colors!($style),
             $text
         )
         .unwrap();
-        $buffer.flush().unwrap();
-    };
+    }};
 }
 
-/// Same as `write_color!()` but with a newline appended at the end.
+/// Same as `write_styled!()` but with a newline appended at the end.
 #[macro_export]
-macro_rules! writeln_color {
-    ($buffer:expr, $fg:expr, $bg:expr, $text:expr) => {
+macro_rules! writeln_styled {
+    ($buffer:expr, $style:expr, $text:expr) => {{
+        use std::io::Write;
         write!(
             $buffer,
-            "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-            $fg.get_fg_code(),
-            $fg.get_separator(&$bg),
-            $bg.get_bg_code(),
+            "\u{001b}[{}{}\u{001b}[0m\n",
+            $crate::parse_colors!($style),
             $text
         )
         .unwrap();
-        $buffer.flush().unwrap();
-    };
+    }};
 }
 
 /// Print color text to stdout.
 ///
 /// # Arguments
-/// * `$fg` - The foreground `Color` value.
-/// * `$bg` - The background `Color` value.
+/// * `$style` - "X on Y" style string (e.g. "bright green on white".
 /// * `$text` - The text to print to stdout.
 ///
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
-/// use color_macros::{print_color, Color};
+/// use color_macros::print_styled;
 ///
-/// // Prints red text on a white background to stdout.
-/// print_color!(Color::Red, Color::White, "test");
+/// // Prints bright green text on a black background to stdout.
+/// print_styled!("bright green on black", "test");
 /// ```
 #[macro_export]
-macro_rules! print_color {
-    ($fg:expr, $bg:expr, $text:expr) => {{
+macro_rules! print_styled {
+    ($style:expr, $text:expr) => {{
+        use std::io::Write;
         let mut stdout = std::io::stdout().lock();
         write!(
             &mut stdout,
-            "\u{001b}[{}{}{}m{}\u{001b}[0m",
-            $fg.get_fg_code(),
-            $fg.get_separator(&$bg),
-            $bg.get_bg_code(),
+            "\u{001b}[{}{}\u{001b}[0m",
+            $crate::parse_colors!($style),
             $text
         )
         .unwrap();
@@ -164,17 +350,16 @@ macro_rules! print_color {
     }};
 }
 
-/// Same as `print_color!()` but with a newline appended at the end.
+/// Same as `print_styled!()` but with a newline appended at the end.
 #[macro_export]
-macro_rules! println_color {
-    ($fg:expr, $bg:expr, $text:expr) => {{
+macro_rules! println_styled {
+    ($style:expr, $text:expr) => {{
+        use std::io::Write;
         let mut stdout = std::io::stdout().lock();
         write!(
             &mut stdout,
-            "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-            $fg.get_fg_code(),
-            $fg.get_separator(&$bg),
-            $bg.get_bg_code(),
+            "\u{001b}[{}{}\u{001b}[0m\n",
+            $crate::parse_colors!($style),
             $text
         )
         .unwrap();
@@ -185,29 +370,26 @@ macro_rules! println_color {
 /// Print color text to stderr.
 ///
 /// # Arguments
-/// * `$fg` - The foreground `Color` value.
-/// * `$bg` - The background `Color` value.
+/// * `$style` - "X on Y" style string (e.g. "bright green on white".
 /// * `$text` - The text to print to stderr.
 ///
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
-/// use color_macros::{eprint_color, Color};
+/// use color_macros::eprint_styled;
 ///
-/// // Prints red text on a white background to stderr.
-/// eprint_color!(Color::Red, Color::White, "test");
+/// // Prints bright red text on a white background to stderr.
+/// eprint_styled!("bright red on white", "test");
 /// ```
 #[macro_export]
-macro_rules! eprint_color {
-    ($fg:expr, $bg:expr, $text:expr) => {{
+macro_rules! eprint_styled {
+    ($style:expr, $text:expr) => {{
+        use std::io::Write;
         let mut stderr = std::io::stderr().lock();
         write!(
             &mut stderr,
-            "\u{001b}[{}{}{}m{}\u{001b}[0m",
-            $fg.get_fg_code(),
-            $fg.get_separator(&$bg),
-            $bg.get_bg_code(),
+            "\u{001b}[{}{}\u{001b}[0m",
+            $crate::parse_colors!($style),
             $text
         )
         .unwrap();
@@ -215,17 +397,16 @@ macro_rules! eprint_color {
     }};
 }
 
-/// Same as `eprint_color!()` but with a newline appended at the end.
+/// Same as `eprint_styled!()` but with a newline appended at the end.
 #[macro_export]
-macro_rules! eprintln_color {
-    ($fg:expr, $bg:expr, $text:expr) => {{
+macro_rules! eprintln_styled {
+    ($style:expr, $text:expr) => {{
+        use std::io::Write;
         let mut stderr = std::io::stderr().lock();
         write!(
             &mut stderr,
-            "\u{001b}[{}{}{}m{}\u{001b}[0m\n",
-            $fg.get_fg_code(),
-            $fg.get_separator(&$bg),
-            $bg.get_bg_code(),
+            "\u{001b}[{}{}\u{001b}[0m\n",
+            $crate::parse_colors!($style),
             $text
         )
         .unwrap();
@@ -244,7 +425,6 @@ macro_rules! eprintln_color {
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
 /// use color_macros::write_color256;
 ///
 /// let mut buffer: Vec<u8> = vec![];
@@ -256,33 +436,37 @@ macro_rules! eprintln_color {
 /// ```
 #[macro_export]
 macro_rules! write_color256 {
-    ($buffer:expr, $fg_num:expr, $bg_num:expr, $text:expr) => {
+    ($buffer:expr, $fg_num:expr, $bg_num:expr, $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         write!(
             $buffer,
             "\u{001b}[{};{}m{}\u{001b}[0m",
-            $crate::Color::Color256($fg_num).get_fg_code(),
-            $crate::Color::Color256($bg_num).get_bg_code(),
+            Fg::get_ansi_code(&Color::Color256($fg_num)),
+            Bg::get_ansi_code(&Color::Color256($bg_num)),
             $text
         )
         .unwrap();
         $buffer.flush().unwrap();
-    };
+    }};
 }
 
 /// Same as `write_color256!()` but with a newline appended at the end.
 #[macro_export]
 macro_rules! writeln_color256 {
-    ($buffer:expr, $fg_num:expr, $bg_num:expr, $text:expr) => {
+    ($buffer:expr, $fg_num:expr, $bg_num:expr, $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         write!(
             $buffer,
             "\u{001b}[{};{}m{}\u{001b}[0m\n",
-            $crate::Color::Color256($fg_num).get_fg_code(),
-            $crate::Color::Color256($bg_num).get_bg_code(),
+            Fg::get_ansi_code(&Color::Color256($fg_num)),
+            Bg::get_ansi_code(&Color::Color256($bg_num)),
             $text
         )
         .unwrap();
         $buffer.flush().unwrap();
-    };
+    }};
 }
 
 /// Print color text to stdout.
@@ -295,7 +479,6 @@ macro_rules! writeln_color256 {
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
 /// use color_macros::print_color256;
 ///
 /// // Prints red text on a white background to stdout.
@@ -304,12 +487,14 @@ macro_rules! writeln_color256 {
 #[macro_export]
 macro_rules! print_color256 {
     ($fg_num:expr, $bg_num:expr, $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stdout = std::io::stdout().lock();
         write!(
             &mut stdout,
             "\u{001b}[{};{}m{}\u{001b}[0m",
-            $crate::Color::Color256($fg_num).get_fg_code(),
-            $crate::Color::Color256($bg_num).get_bg_code(),
+            Fg::get_ansi_code(&Color::Color256($fg_num)),
+            Bg::get_ansi_code(&Color::Color256($bg_num)),
             $text
         )
         .unwrap();
@@ -321,12 +506,14 @@ macro_rules! print_color256 {
 #[macro_export]
 macro_rules! println_color256 {
     ($fg_num:expr, $bg_num:expr, $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stdout = std::io::stdout().lock();
         write!(
             &mut stdout,
             "\u{001b}[{};{}m{}\u{001b}[0m\n",
-            $crate::Color::Color256($fg_num).get_fg_code(),
-            $crate::Color::Color256($bg_num).get_bg_code(),
+            Fg::get_ansi_code(&Color::Color256($fg_num)),
+            Bg::get_ansi_code(&Color::Color256($bg_num)),
             $text
         )
         .unwrap();
@@ -344,7 +531,6 @@ macro_rules! println_color256 {
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
 /// use color_macros::eprint_color256;
 ///
 /// // Prints red text on a white background to stderr.
@@ -353,12 +539,14 @@ macro_rules! println_color256 {
 #[macro_export]
 macro_rules! eprint_color256 {
     ($fg_num:expr, $bg_num:expr, $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stderr = std::io::stderr().lock();
         write!(
             &mut stderr,
             "\u{001b}[{};{}m{}\u{001b}[0m",
-            $crate::Color::Color256($fg_num).get_fg_code(),
-            $crate::Color::Color256($bg_num).get_bg_code(),
+            Fg::get_ansi_code(&Color::Color256($fg_num)),
+            Bg::get_ansi_code(&Color::Color256($bg_num)),
             $text
         )
         .unwrap();
@@ -370,12 +558,14 @@ macro_rules! eprint_color256 {
 #[macro_export]
 macro_rules! eprintln_color256 {
     ($fg_num:expr, $bg_num:expr, $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stderr = std::io::stderr().lock();
         write!(
             &mut stderr,
             "\u{001b}[{};{}m{}\u{001b}[0m\n",
-            $crate::Color::Color256($fg_num).get_fg_code(),
-            $crate::Color::Color256($bg_num).get_bg_code(),
+            Fg::get_ansi_code(&Color::Color256($fg_num)),
+            Bg::get_ansi_code(&Color::Color256($bg_num)),
             $text
         )
         .unwrap();
@@ -394,7 +584,6 @@ macro_rules! eprintln_color256 {
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
 /// use color_macros::write_rgb;
 ///
 /// let mut buffer: Vec<u8> = vec![];
@@ -407,34 +596,38 @@ macro_rules! eprintln_color256 {
 #[macro_export]
 macro_rules! write_rgb {
     ($buffer:expr, ($fg_r:expr, $fg_g:expr, $fg_b:expr),
-    ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {
+    ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         write!(
             $buffer,
             "\u{001b}[{};{}m{}\u{001b}[0m",
-            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).get_fg_code(),
-            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).get_bg_code(),
+            Fg::get_ansi_code(&Color::Rgb($fg_r, $fg_g, $fg_b)),
+            Bg::get_ansi_code(&Color::Rgb($bg_r, $bg_g, $bg_b)),
             $text
         )
         .unwrap();
         $buffer.flush().unwrap();
-    };
+    }};
 }
 
 /// Same as `write_rgb!()` but with a newline appended at the end.
 #[macro_export]
 macro_rules! writeln_rgb {
     ($buffer:expr, ($fg_r:expr, $fg_g:expr, $fg_b:expr),
-    ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {
+    ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         write!(
             $buffer,
             "\u{001b}[{};{}m{}\u{001b}[0m\n",
-            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).get_fg_code(),
-            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).get_bg_code(),
+            Fg::get_ansi_code(&Color::Rgb($fg_r, $fg_g, $fg_b)),
+            Bg::get_ansi_code(&Color::Rgb($bg_r, $bg_g, $bg_b)),
             $text
         )
         .unwrap();
         $buffer.flush().unwrap();
-    };
+    }};
 }
 
 /// Print color text to stdout using 24-bit RGB color values.
@@ -447,7 +640,6 @@ macro_rules! writeln_rgb {
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
 /// use color_macros::print_rgb;
 ///
 /// // Print red text on a white background to stdout.
@@ -457,12 +649,14 @@ macro_rules! writeln_rgb {
 macro_rules! print_rgb {
     (($fg_r:expr, $fg_g:expr, $fg_b:expr),
      ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stdout = std::io::stdout().lock();
         write!(
             &mut stdout,
             "\u{001b}[{};{}m{}\u{001b}[0m",
-            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).get_fg_code(),
-            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).get_bg_code(),
+            Fg::get_ansi_code(&Color::Rgb($fg_r, $fg_g, $fg_b)),
+            Bg::get_ansi_code(&Color::Rgb($bg_r, $bg_g, $bg_b)),
             $text
         )
         .unwrap();
@@ -475,12 +669,14 @@ macro_rules! print_rgb {
 macro_rules! println_rgb {
     (($fg_r:expr, $fg_g:expr, $fg_b:expr),
      ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stdout = std::io::stdout().lock();
         write!(
             &mut stdout,
             "\u{001b}[{};{}m{}\u{001b}[0m\n",
-            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).get_fg_code(),
-            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).get_bg_code(),
+            Fg::get_ansi_code(&Color::Rgb($fg_r, $fg_g, $fg_b)),
+            Bg::get_ansi_code(&Color::Rgb($bg_r, $bg_g, $bg_b)),
             $text
         )
         .unwrap();
@@ -498,7 +694,6 @@ macro_rules! println_rgb {
 /// # Example
 ///
 /// ```rust
-/// use std::io::Write;
 /// use color_macros::eprint_rgb;
 ///
 /// // Print red text on a white background to stderr.
@@ -508,12 +703,14 @@ macro_rules! println_rgb {
 macro_rules! eprint_rgb {
     (($fg_r:expr, $fg_g:expr, $fg_b:expr),
      ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stderr = std::io::stderr().lock();
         write!(
             &mut stderr,
             "\u{001b}[{};{}m{}\u{001b}[0m",
-            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).get_fg_code(),
-            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).get_bg_code(),
+            Fg::get_ansi_code(&Color::Rgb($fg_r, $fg_g, $fg_b)),
+            Bg::get_ansi_code(&Color::Rgb($bg_r, $bg_g, $bg_b)),
             $text
         )
         .unwrap();
@@ -526,12 +723,14 @@ macro_rules! eprint_rgb {
 macro_rules! eprintln_rgb {
     (($fg_r:expr, $fg_g:expr, $fg_b:expr),
      ($bg_r:expr, $bg_g:expr, $bg_b:expr), $text:expr) => {{
+        use std::io::Write;
+        use $crate::{Bg, Color, Fg};
         let mut stderr = std::io::stderr().lock();
         write!(
             &mut stderr,
             "\u{001b}[{};{}m{}\u{001b}[0m\n",
-            $crate::Color::Rgb($fg_r, $fg_g, $fg_b).get_fg_code(),
-            $crate::Color::Rgb($bg_r, $bg_g, $bg_b).get_bg_code(),
+            Fg::get_ansi_code(&Color::Rgb($fg_r, $fg_g, $fg_b)),
+            Bg::get_ansi_code(&Color::Rgb($bg_r, $bg_g, $bg_b)),
             $text
         )
         .unwrap();
@@ -539,175 +738,13 @@ macro_rules! eprintln_rgb {
     }};
 }
 
-impl Color {
-    /// Returns true if this Color instance is `Color::Current`.
-    #[must_use]
-    pub fn is_current(&self) -> bool {
-        *self == Self::Current
-    }
-
-    /// Returns a semicolon separator if self and other are not `Color::Current`.
-    /// Else it returns an empty string.
-    #[must_use]
-    pub fn get_separator(&self, other: &Self) -> String {
-        if !self.is_current() && !other.is_current() {
-            ";".to_string()
-        } else {
-            String::new()
-        }
-    }
-
-    /// Returns the numeric portion of the foreground ANSI color code.
-    #[must_use]
-    pub fn get_fg_code(&self) -> String {
-        match *self {
-            Self::Black => "30".to_string(),
-            Self::Red => "31".to_string(),
-            Self::Green => "32".to_string(),
-            Self::Yellow => "33".to_string(),
-            Self::Blue => "34".to_string(),
-            Self::Magenta => "35".to_string(),
-            Self::Cyan => "36".to_string(),
-            Self::White => "37".to_string(),
-            Self::BrBlack => "90".to_string(),
-            Self::BrRed => "91".to_string(),
-            Self::BrGreen => "92".to_string(),
-            Self::BrYellow => "93".to_string(),
-            Self::BrBlue => "94".to_string(),
-            Self::BrMagenta => "95".to_string(),
-            Self::BrCyan => "96".to_string(),
-            Self::BrWhite => "97".to_string(),
-            Self::Color256(num) => format!("38;5;{num}"),
-            Self::Rgb(r, g, b) => format!("38;2;{r};{g};{b}"),
-            Self::Current => String::new(),
-            Self::Reset => "0".to_string(),
-        }
-    }
-
-    /// Returns the numeric portion of the background ANSI color code.
-    #[must_use]
-    pub fn get_bg_code(&self) -> String {
-        match *self {
-            Self::Black => "40".to_string(),
-            Self::Red => "41".to_string(),
-            Self::Green => "42".to_string(),
-            Self::Yellow => "43".to_string(),
-            Self::Blue => "44".to_string(),
-            Self::Magenta => "45".to_string(),
-            Self::Cyan => "46".to_string(),
-            Self::White => "47".to_string(),
-            Self::BrBlack => "100".to_string(),
-            Self::BrRed => "101".to_string(),
-            Self::BrGreen => "102".to_string(),
-            Self::BrYellow => "103".to_string(),
-            Self::BrBlue => "104".to_string(),
-            Self::BrMagenta => "105".to_string(),
-            Self::BrCyan => "106".to_string(),
-            Self::BrWhite => "107".to_string(),
-            Self::Color256(num) => format!("48;5;{num}"),
-            Self::Rgb(r, g, b) => format!("48;2;{r};{g};{b}"),
-            Self::Current => String::new(),
-            Self::Reset => "0".to_string(),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
+    use super::{write_color256, write_rgb, write_styled};
 
-    use super::Color::*;
-    use super::*;
-
-    macro_rules! test_color {
-        ($test_name:ident:
-         $fg:tt, $bg:tt,
-         $text:literal => $expected:literal) => {
-            #[test]
-            fn $test_name() {
-                let mut output: Vec<u8> = vec![];
-                write_color!(&mut output, $fg, $bg, $text);
-                assert_eq!(output.as_slice(), $expected);
-            }
-        };
-    }
-
-    macro_rules! test_rgb {
-        ($test_name:ident:
-         ($fg_r:tt, $fg_g:tt, $fg_b:tt),
-         ($bg_r:tt, $bg_g:tt, $bg_b:tt),
-         $text:literal => $expected:literal) => {
-            #[test]
-            fn $test_name() {
-                let mut output: Vec<u8> = vec![];
-                write_rgb!(
-                    &mut output,
-                    ($fg_r, $fg_g, $fg_b),
-                    ($bg_r, $bg_g, $bg_b),
-                    $text
-                );
-                assert_eq!(output.as_slice(), $expected);
-            }
-        };
-    }
-
-    // Basic foreground color tests
-    test_color!(blk:    Black,     Current, "hi" => b"\x1b[30mhi\x1b[0m");
-    test_color!(red:    Red,       Current, "hi" => b"\x1b[31mhi\x1b[0m");
-    test_color!(grn:    Green,     Current, "hi" => b"\x1b[32mhi\x1b[0m");
-    test_color!(ylw:    Yellow,    Current, "hi" => b"\x1b[33mhi\x1b[0m");
-    test_color!(blu:    Blue,      Current, "hi" => b"\x1b[34mhi\x1b[0m");
-    test_color!(mag:    Magenta,   Current, "hi" => b"\x1b[35mhi\x1b[0m");
-    test_color!(cyn:    Cyan,      Current, "hi" => b"\x1b[36mhi\x1b[0m");
-    test_color!(wht:    White,     Current, "hi" => b"\x1b[37mhi\x1b[0m");
-    test_color!(br_blk: BrBlack,   Current, "hi" => b"\x1b[90mhi\x1b[0m");
-    test_color!(br_red: BrRed,     Current, "hi" => b"\x1b[91mhi\x1b[0m");
-    test_color!(br_grn: BrGreen,   Current, "hi" => b"\x1b[92mhi\x1b[0m");
-    test_color!(br_ylw: BrYellow,  Current, "hi" => b"\x1b[93mhi\x1b[0m");
-    test_color!(br_blu: BrBlue,    Current, "hi" => b"\x1b[94mhi\x1b[0m");
-    test_color!(br_mag: BrMagenta, Current, "hi" => b"\x1b[95mhi\x1b[0m");
-    test_color!(br_cyn: BrCyan,    Current, "hi" => b"\x1b[96mhi\x1b[0m");
-    test_color!(br_wht: BrWhite,   Current, "hi" => b"\x1b[97mhi\x1b[0m");
-
-    // Basic background color tests
-    test_color!(bg_blk:    Current, Black,     "hi" => b"\x1b[40mhi\x1b[0m");
-    test_color!(bg_red:    Current, Red,       "hi" => b"\x1b[41mhi\x1b[0m");
-    test_color!(bg_grn:    Current, Green,     "hi" => b"\x1b[42mhi\x1b[0m");
-    test_color!(bg_ylw:    Current, Yellow,    "hi" => b"\x1b[43mhi\x1b[0m");
-    test_color!(bg_blu:    Current, Blue,      "hi" => b"\x1b[44mhi\x1b[0m");
-    test_color!(bg_mag:    Current, Magenta,   "hi" => b"\x1b[45mhi\x1b[0m");
-    test_color!(bg_cyn:    Current, Cyan,      "hi" => b"\x1b[46mhi\x1b[0m");
-    test_color!(bg_wht:    Current, White,     "hi" => b"\x1b[47mhi\x1b[0m");
-    test_color!(bg_br_blk: Current, BrBlack,   "hi" => b"\x1b[100mhi\x1b[0m");
-    test_color!(bg_br_red: Current, BrRed,     "hi" => b"\x1b[101mhi\x1b[0m");
-    test_color!(bg_br_grn: Current, BrGreen,   "hi" => b"\x1b[102mhi\x1b[0m");
-    test_color!(bg_br_ylw: Current, BrYellow,  "hi" => b"\x1b[103mhi\x1b[0m");
-    test_color!(bg_br_blu: Current, BrBlue,    "hi" => b"\x1b[104mhi\x1b[0m");
-    test_color!(bg_br_mag: Current, BrMagenta, "hi" => b"\x1b[105mhi\x1b[0m");
-    test_color!(bg_br_cyn: Current, BrCyan,    "hi" => b"\x1b[106mhi\x1b[0m");
-    test_color!(bg_br_wht: Current, BrWhite,   "hi" => b"\x1b[107mhi\x1b[0m");
-
-    // Mixed foreground/background color tests
-    test_color!(red_on_wht:        Red,     White,     "hi" => b"\x1b[31;47mhi\x1b[0m");
-    test_color!(blk_on_cyan:       Black,   Cyan,      "hi" => b"\x1b[30;46mhi\x1b[0m");
-    test_color!(grn_on_purp:       Green,   Magenta,   "hi" => b"\x1b[32;45mhi\x1b[0m");
-    test_color!(blue_on_ylw:       Blue,    Yellow,    "hi" => b"\x1b[34;43mhi\x1b[0m");
-    test_color!(br_red_on_wht:     BrRed,   White,     "hi" => b"\x1b[91;47mhi\x1b[0m");
-    test_color!(br_blk_on_cyan:    BrBlack, Cyan,      "hi" => b"\x1b[90;46mhi\x1b[0m");
-    test_color!(br_grn_on_purp:    BrGreen, Magenta,   "hi" => b"\x1b[92;45mhi\x1b[0m");
-    test_color!(br_blue_on_ylw:    BrBlue,  Yellow,    "hi" => b"\x1b[94;43mhi\x1b[0m");
-    test_color!(red_on_br_wht:     Red,     BrWhite,   "hi" => b"\x1b[31;107mhi\x1b[0m");
-    test_color!(blk_on_br_cyan:    Black,   BrCyan,    "hi" => b"\x1b[30;106mhi\x1b[0m");
-    test_color!(grn_on_br_purp:    Green,   BrMagenta, "hi" => b"\x1b[32;105mhi\x1b[0m");
-    test_color!(blue_on_br_ylw:    Blue,    BrYellow,  "hi" => b"\x1b[34;103mhi\x1b[0m");
-    test_color!(br_red_on_br_wht:  BrRed,   BrWhite,   "hi" => b"\x1b[91;107mhi\x1b[0m");
-    test_color!(br_blk_on_br_cyan: BrBlack, BrCyan,    "hi" => b"\x1b[90;106mhi\x1b[0m");
-    test_color!(br_grn_on_br_purp: BrGreen, BrMagenta, "hi" => b"\x1b[92;105mhi\x1b[0m");
-    test_color!(br_blue_on_br_ylw: BrBlue,  BrYellow,  "hi" => b"\x1b[94;103mhi\x1b[0m");
-
-    // Test all color256 foreground and background combinations
+    // Test all color256 foreground and background color combinations
     #[test]
-    fn test_all_color256_fg_and_bg_values() {
+    fn test_all_color256_fg_and_bg_color_combos() {
         let mut output = Vec::new();
         let mut expected = Vec::new();
 
@@ -716,17 +753,120 @@ mod tests {
             expected.extend(format!("\x1b[38;5;{fg_color};48;5;{bg_color}mhi\x1b[0m").as_bytes());
         }
 
-        assert_eq!(output.as_slice(), expected.as_slice());
+        assert!(&output[..] == &expected[..]);
     }
 
-    // RGB tests
-    test_rgb!(rgb_1: (192, 123, 23), (231, 12, 73), "hi" =>
-        b"\x1b[38;2;192;123;23;48;2;231;12;73mhi\x1b[0m"
-    );
-    test_rgb!(rgb_2: (92, 13, 239), (132, 1, 177), "hi" =>
-        b"\x1b[38;2;92;13;239;48;2;132;1;177mhi\x1b[0m"
-    );
-    test_rgb!(rgb_3: (255, 0, 255), (0, 255, 0), "hi" =>
-        b"\x1b[38;2;255;0;255;48;2;0;255;0mhi\x1b[0m"
-    );
+    // Test RGB foreground colors
+    #[test]
+    fn test_rgb_fg_colors() {
+        let mut output = Vec::new();
+        let mut expected = Vec::new();
+
+        for r in (0..=255).step_by(10) {
+            for g in (0..=255).step_by(10) {
+                for b in (0..=255).step_by(10) {
+                    write_rgb!(&mut output, (r, g, b), (255, 255, 255), "hi");
+                    expected.extend(
+                        format!("\x1b[38;2;{r};{g};{b};48;2;255;255;255mhi\x1b[0m").as_bytes(),
+                    );
+                }
+            }
+        }
+
+        assert!(&output[..] == &expected[..]);
+    }
+
+    // Test RGB background colors
+    #[test]
+    fn test_rgb_bg_colors() {
+        let mut output = Vec::new();
+        let mut expected = Vec::new();
+
+        for r in (0..=255).step_by(10) {
+            for g in (0..=255).step_by(10) {
+                for b in (0..=255).step_by(10) {
+                    write_rgb!(&mut output, (255, 255, 255), (r, g, b), "hi");
+                    expected.extend(
+                        format!("\x1b[38;2;255;255;255;48;2;{r};{g};{b}mhi\x1b[0m").as_bytes(),
+                    );
+                }
+            }
+        }
+
+        assert!(&output[..] == &expected[..]);
+    }
+
+    // Test all write_styled foreground and background color combinations
+    #[test]
+    fn test_all_write_styled_fg_and_bg_color_combos() {
+        const FG_COLORS: [(&str, &str); 17] = [
+            ("black", "30"),
+            ("red", "31"),
+            ("green", "32"),
+            ("yellow", "33"),
+            ("blue", "34"),
+            ("magenta", "35"),
+            ("cyan", "36"),
+            ("white", "37"),
+            ("bright black", "90"),
+            ("bright red", "91"),
+            ("bright green", "92"),
+            ("bright yellow", "93"),
+            ("bright blue", "94"),
+            ("bright magenta", "95"),
+            ("bright cyan", "96"),
+            ("bright white", "97"),
+            ("current", ""),
+        ];
+
+        const BG_COLORS: [(&str, &str); 17] = [
+            ("black", "40"),
+            ("red", "41"),
+            ("green", "42"),
+            ("yellow", "43"),
+            ("blue", "44"),
+            ("magenta", "45"),
+            ("cyan", "46"),
+            ("white", "47"),
+            ("bright black", "100"),
+            ("bright red", "101"),
+            ("bright green", "102"),
+            ("bright yellow", "103"),
+            ("bright blue", "104"),
+            ("bright magenta", "105"),
+            ("bright cyan", "106"),
+            ("bright white", "107"),
+            ("current", ""),
+        ];
+
+        let mut output = Vec::new();
+        let mut expected = Vec::new();
+
+        for fg_idx in 0..FG_COLORS.len() {
+            for bg_idx in (0..BG_COLORS.len()).rev() {
+                let fg_color = FG_COLORS[fg_idx].0;
+                let bg_color = BG_COLORS[bg_idx].0;
+                let fg_code = FG_COLORS[fg_idx].1;
+                let bg_code = BG_COLORS[bg_idx].1;
+                let style = format!("{fg_color} on {bg_color}");
+                write_styled!(&mut output, style, style);
+                expected.extend(
+                    format!(
+                        "\x1b[{}{}{}m{}\x1b[0m",
+                        fg_code,
+                        if fg_color != "current" && bg_color != "current" {
+                            ";"
+                        } else {
+                            ""
+                        },
+                        bg_code,
+                        style
+                    )
+                    .as_bytes(),
+                );
+            }
+        }
+
+        assert!(&output[..] == &expected[..]);
+    }
 }

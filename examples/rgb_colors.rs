@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use color_macros::{print_rgb, println_rgb};
 
 fn main() {

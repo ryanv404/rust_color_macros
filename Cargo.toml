@@ -1,6 +1,6 @@
 [package]
 name = "color_macros"
-description = "Simple macros for writing colored text to a buffer or to the terminal."
+description = "Easy-to-use macros for writing colored text to a buffer or to the terminal."
 authors = ["ryanv404"]
 version = "0.1.0"
 edition = "2021"

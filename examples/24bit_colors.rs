@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use color_macros::{print_styled, println_styled};
+use color_macros::{print_rgb, println_rgb};
 
 fn main() {
     let total_cols = 80;
@@ -19,17 +19,9 @@ fn main() {
         let b: u8 = b.try_into().unwrap();
 
         if col == (total_cols - 1) {
-            println_styled!(
-                Rgb(r, g, b),
-                Rgb(255 - r, 255 - g, 255 - b),
-                " "
-            );
+            println_rgb!((r, g, b), (255 - r, 255 - g, 255 - b), " ");
         } else {
-            print_styled!(
-                Rgb(r, g, b),
-                Rgb(255 - r, 255 - g, 255 - b),
-                " "
-            );
+            print_rgb!((r, g, b), (255 - r, 255 - g, 255 - b), " ");
         }
     }
 }
